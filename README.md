@@ -61,6 +61,8 @@
                 echo iptables -t nat -A PREROUTING -i ens32 -p udp --dport 53 -j REDIRECT --to-ports 53 >> /etc/profile
                 echo iptables -t nat -A PREROUTING -i ens32 -p tcp --dport 53 -j REDIRECT --to-ports 53 >> /etc/profile
                 ```
+            ![image](https://github.com/user-attachments/assets/f01a2110-1d12-4175-ad5a-1eccea1b725c)
+
     2. MosDNS：
         1. 下载数据ip和域名数据库文件：
             - `wget https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/geoip.dat`

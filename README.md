@@ -36,8 +36,9 @@
             5. 添加规则5，外网线路，默认出口，udp，目的地址写备用dns，目的端口53，其他不用配置
             - 规则4和5可选，目的是拦截dns请求并转发到mosdns。因为有些应用使用的内置dns。转发后要在旁路网关拦截才生效。备用dns不拦截！
             ![image](https://github.com/user-attachments/assets/e919a2ae-9382-4a5c-b2cc-46f896633869)
-            ![image](https://github.com/user-attachments/assets/d4a30a79-da2b-4a91-816d-110093427a6f)
-           ![image](https://github.com/user-attachments/assets/f688c8ae-7f3a-4cc9-9f17-f671cd711c65)
+            ![image](https://github.com/user-attachments/assets/72a524c1-ad78-4fea-a6ae-1f6c567235ba)
+            ![image](https://github.com/user-attachments/assets/6e23c907-ca62-4598-a5ba-0af8e336faa1)
+
         - 旁路网关下执行拦截dns（可选）
             - 如果是使用ufw和nftables：
                 - 在`/etc/ufw/after6.rules`文件最后加入以下内容并`ufw reload`即可：

@@ -7,7 +7,12 @@
     - ADGuardHome主要用作开箱即用的DNS记录、缓存和去广告，没有需求可以直接用其他公共dns代替。
 1. 直接上内网DHCP+DNS设置和流量走向
     - 设置：爱快负责DHCP，宣告网关为爱快(172.16.6.1)，主DNS为MosDNS(172.16.6.9:53)，备用DNS为阿里的223.6.6.6
-    - 流量走向：内网机器（客户端）上网时首先发起DNS查询->MosDNS根据数据库将国内域名和其他域名分开，国内域名交给ADGuardHome，会返回正常ip；其他域名交给Clash，会返回FakeIP；->客户端拿到ip后发起连接，来到网关(爱快)这里，爱快端口分流，是Fakeip就扔给clash，不是就直接发出去，完成连接->clash收到FakeIP会路由出去，此时已经换成真实ip并加密流量了，爱快也会直接放行。
+    - 流量走向：
+        1. 内网机器（客户端）上网时首先向MosDNS发起DNS查询
+        2. MosDNS根据数据库将国内域名和其他域名分开，国内域名交给ADGuardHome，会返回正常ip；其他域名交给Clash，会返回FakeIP；
+        3. 客户端拿到ip后发起连接
+        4. 来到网关(爱快)这里，爱快端口分流，是Fakeip就扔给clash，不是就直接发出去，完成连接
+        5. clash收到FakeIP会路由出去，此时已经换成真实ip并加密流量了，爱快也会直接放行。
    ![未命名绘图 drawio (1)](https://github.com/user-attachments/assets/585e0083-078d-4021-948d-5005aca3aee6)
       
 2. 优点：

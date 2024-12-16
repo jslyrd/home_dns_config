@@ -3,7 +3,7 @@
 # MosDNS DNS分流+Clash FakeIP+ikuai网关分流+ADGuardHome缓存去广告+IPv6方案（养老配置了）
 0. 前提
     - 设备：1、爱快（或其他能自定义流量转发的路由）作为网关；2、旁路网关上有clash（或其他支持fakeip的工具）；3、ADGuardHome和MosDNS（非必要）
-    - MosDNS作用是分别转发国内和非国内域名到不同DNS，虽然clash本身也能干这活，但是我用的shellcrash测试是有点问题的，主要是部分域名他在规则里识别出是国内ip，但返回的却不是fakeip，可能是域名不在国内域名列表但查出的ip在国内ip列表。前置一个MosDNS不会出现这种问题，MosDNS-CN的分流模式十分强大且开箱即用，详情可看：[https://github.com/IrineSistiana/mosdns-cn?tab=readme-ov-file#%E5%88%86%E6%B5%81%E6%A8%A1%E5%BC%8F]
+    - MosDNS作用是分别转发国内和非国内域名到不同DNS，虽然clash本身也能干这活，但是我用的shellcrash测试是有点问题的，主要是部分域名他在规则里识别出是国内ip，但返回的却仍是fakeip，可能是域名不在国内域名列表但ip在国内ip列表。前置一个MosDNS不会出现这种问题，MosDNS-CN的分流模式十分强大且开箱即用，详情可看：[https://github.com/IrineSistiana/mosdns-cn?tab=readme-ov-file#%E5%88%86%E6%B5%81%E6%A8%A1%E5%BC%8F]
     - ADGuardHome主要用作开箱即用的DNS记录、缓存和去广告，没有需求可以直接用其他公共dns代替。
 1. 直接上内网DHCP+DNS设置和流量走向
     - 设置：爱快负责DHCP，宣告网关为爱快(172.16.6.1)，主DNS为MosDNS(172.16.6.9:53)，备用DNS为阿里的223.6.6.6

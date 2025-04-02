@@ -129,6 +129,7 @@ cat > /etc/ShellCrash/jsons/dns.json << EOF
 }
 EOF
 ```
+
     3. ADGuardHome：
         1. 下载（先cd到安装目录）：`wget https://static.adguard.com/adguardhome/edge/AdGuardHome_linux_amd64.tar.gz -O AdGuardHome.tar.gz`   
         2. 配置监听的DNS端口与SingBox dns配置的dns_direct要一致，即1745。其他配置不在此赘述

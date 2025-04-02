@@ -1,5 +1,3 @@
-# home_dns_config
-
 # SingBox P核 FakeIP+ikuai网关分流+ADGuardHome缓存去广告+IPv6方案（真-养老配置，稳定运行没再动过）
 0. 前提
     - 设备：1、爱快（或其他能自定义流量转发的路由）作为网关；2、旁路网关上有clash（或其他支持fakeip的工具，我这里使用singbox p核）；3、ADGuardHome（非必要）
@@ -32,103 +30,103 @@
         1. 这里用的是shellcrash标准linux设备安装：`export url='https://fastly.jsdelivr.net/gh/juewuy/ShellCrash@master' && wget -q --no-check-certificate -O /tmp/install.sh $url/install.sh  && bash /tmp/install.sh && source /etc/profile &> /dev/null`
         2. 只需设置纯净模式+mix模式，DNS进阶不用管会被dns.json覆盖，我使用了
         3. 可以小抄一下作业，下面的配置开启了fakeip、dns缓存，没有使用shellcrash的路由拦截，因为有爱快的静态路由和tun拦截了，非常地纯净。如果有不想走fakeip的域名，将其放在domain_suffix中即可：
-```
-# 以linux标准安装方式下载shellclash，选项时装在/etc，使用sing-box puernya的内核。设置防火墙为nftables，开启ipv6，纯净模式+mix模式，DNS进阶不用管会被dns.json覆盖。
-export url='https://fastly.jsdelivr.net/gh/juewuy/ShellCrash@master' && wget -q --no-check-certificate -O /tmp/install.sh $url/install.sh  && bash /tmp/install.sh && source /etc/profile &> /dev/null
-cat > /etc/ShellCrash/jsons/experimental.json << EOF
-{
-  "experimental": {
-    "clash_api": {
-      "external_controller": "0.0.0.0:9999",
-      "external_ui": "ui",
-      "secret": "",
-      "default_mode": "Rule"
-    },
-    "cache_file": {
-      "enabled": true,
-      "path": "",
-      "cache_id": "",
-      "store_fakeip": true
-    }
-  }
-}
-EOF
+            ```
+            # 以linux标准安装方式下载shellclash，选项时装在/etc，使用sing-box puernya的内核。设置防火墙为nftables，开启ipv6，纯净模式+mix模式，DNS进阶不用管会被dns.json覆盖。
+            export url='https://fastly.jsdelivr.net/gh/juewuy/ShellCrash@master' && wget -q --no-check-certificate -O /tmp/install.sh $url/install.sh  && bash /tmp/install.sh && source /etc/profile &> /dev/null
+            cat > /etc/ShellCrash/jsons/experimental.json << EOF
+            {
+              "experimental": {
+                "clash_api": {
+                  "external_controller": "0.0.0.0:9999",
+                  "external_ui": "ui",
+                  "secret": "",
+                  "default_mode": "Rule"
+                },
+                "cache_file": {
+                  "enabled": true,
+                  "path": "",
+                  "cache_id": "",
+                  "store_fakeip": true
+                }
+              }
+            }
+            EOF
 
-cat > /etc/ShellCrash/jsons/inbounds.json << EOF
-{
-  "inbounds": [
-    {
-      "type": "tun",
-      "tag": "sing-box-tun-in",
-      "interface_name": "sing-box-tun",
-      "address": [
-        "172.16.0.1/16",
-        "fdfe:dcba:9876::1/126"
-      ],
-      "mtu": 9000,
-      "auto_route": true,
-      "auto_redirect": true,
-      "strict_route": true,
-      "stack": "system",
-      "route_address": [
-        "198.18.0.0/15",
-        "fc00::/18"
-      ],
-      "route_exclude_address": [
-        "172.16.0.0/16"
-      ]
-    }
-  ]
-}
-EOF
-cat > /etc/ShellCrash/jsons/dns.json << EOF
-{
-  "dns": {
-    "hosts": {
-      "doh.pub": [ "1.12.12.12", "120.53.53.53", "2402:4e00::" ],
-      "dns.alidns.com": [ "223.5.5.5", "223.6.6.6", "2400:3200::1", "2400:3200:baba::1" ],
-      "dns.google": [ "8.8.8.8", "8.8.4.4", "2001:4860:4860::8888", "2001:4860:4860::8844" ],
-      "cloudflare-dns.com": [ "1.1.1.1", "1.0.0.1", "2606:4700:4700::1111", "2606:4700:4700::1001" ]
-    },
-    "servers": [
-      { "tag": "dns_direct", "address": "127.0.0.1:1745", "detour": "DIRECT" },
-      { "tag": "dns_proxy", "address": [ "https://dns.google/dns-query", "https://cloudflare-dns.com/dns-query" ] },
-      { "tag": "dns_fakeip", "address": "fakeip" }
-    ],
-    "rules": [
-      { "outbound": [ "any" ], "server": "dns_direct" },
-      { "clash_mode": [ "Direct" ], "query_type": [ "A", "AAAA" ], "server": "dns_direct" },
-      { "clash_mode": [ "Global" ], "query_type": [ "A", "AAAA" ], "server": "dns_proxy" },
-      { "geosite": [ "cn" ], "query_type": [ "A", "AAAA" ], "server": "dns_direct" },
-      { "geosite": [ "proxy" ], "query_type": [ "A", "AAAA" ], "server": "dns_fakeip" },
-      { "fallback_rules": [ { "geoip": [ "cn" ], "server": "dns_direct" }, { "match_all": true, "server": "dns_fakeip" } ], "server": "dns_direct" }
-    ],
-    "final": "dns_proxy",
-    "strategy": "prefer_ipv4",
-    "independent_cache": true,
-    "lazy_cache": true,
-    "reverse_mapping": true,
-    "mapping_override": true,
-    "fakeip": {
-      "enabled": true,
-      "inet4_range": "198.18.0.0/16",
-      "inet6_range": "fc00::/16",
-      "exclude_rule": {
-        "geosite": [ "fakeip-filter" ],
-        "domain_suffix":[
-          ".cn",
-          "steam-chat.com",
-          "steamcommunity.com",
-          "cm.steampowered.com",
-          "steamdb.info",
-          "steamstatic.com"
-          ]
-      }
-    }
-  }
-}
-EOF
-```
+            cat > /etc/ShellCrash/jsons/inbounds.json << EOF
+            {
+              "inbounds": [
+                {
+                  "type": "tun",
+                  "tag": "sing-box-tun-in",
+                  "interface_name": "sing-box-tun",
+                  "address": [
+                    "172.16.0.1/16",
+                    "fdfe:dcba:9876::1/126"
+                  ],
+                  "mtu": 9000,
+                  "auto_route": true,
+                  "auto_redirect": true,
+                  "strict_route": true,
+                  "stack": "system",
+                  "route_address": [
+                    "198.18.0.0/15",
+                    "fc00::/18"
+                  ],
+                  "route_exclude_address": [
+                    "172.16.0.0/16"
+                  ]
+                }
+              ]
+            }
+            EOF
+            cat > /etc/ShellCrash/jsons/dns.json << EOF
+            {
+              "dns": {
+                "hosts": {
+                  "doh.pub": [ "1.12.12.12", "120.53.53.53", "2402:4e00::" ],
+                  "dns.alidns.com": [ "223.5.5.5", "223.6.6.6", "2400:3200::1", "2400:3200:baba::1" ],
+                  "dns.google": [ "8.8.8.8", "8.8.4.4", "2001:4860:4860::8888", "2001:4860:4860::8844" ],
+                  "cloudflare-dns.com": [ "1.1.1.1", "1.0.0.1", "2606:4700:4700::1111", "2606:4700:4700::1001" ]
+                },
+                "servers": [
+                  { "tag": "dns_direct", "address": "127.0.0.1:1745", "detour": "DIRECT" },
+                  { "tag": "dns_proxy", "address": [ "https://dns.google/dns-query", "https://cloudflare-dns.com/dns-query" ] },
+                  { "tag": "dns_fakeip", "address": "fakeip" }
+                ],
+                "rules": [
+                  { "outbound": [ "any" ], "server": "dns_direct" },
+                  { "clash_mode": [ "Direct" ], "query_type": [ "A", "AAAA" ], "server": "dns_direct" },
+                  { "clash_mode": [ "Global" ], "query_type": [ "A", "AAAA" ], "server": "dns_proxy" },
+                  { "geosite": [ "cn" ], "query_type": [ "A", "AAAA" ], "server": "dns_direct" },
+                  { "geosite": [ "proxy" ], "query_type": [ "A", "AAAA" ], "server": "dns_fakeip" },
+                  { "fallback_rules": [ { "geoip": [ "cn" ], "server": "dns_direct" }, { "match_all": true, "server": "dns_fakeip" } ], "server": "dns_direct" }
+                ],
+                "final": "dns_proxy",
+                "strategy": "prefer_ipv4",
+                "independent_cache": true,
+                "lazy_cache": true,
+                "reverse_mapping": true,
+                "mapping_override": true,
+                "fakeip": {
+                  "enabled": true,
+                  "inet4_range": "198.18.0.0/16",
+                  "inet6_range": "fc00::/16",
+                  "exclude_rule": {
+                    "geosite": [ "fakeip-filter" ],
+                    "domain_suffix":[
+                      ".cn",
+                      "steam-chat.com",
+                      "steamcommunity.com",
+                      "cm.steampowered.com",
+                      "steamdb.info",
+                      "steamstatic.com"
+                      ]
+                  }
+                }
+              }
+            }
+            EOF
+            ```
 
     3. ADGuardHome：
         1. 下载（先cd到安装目录）：`wget https://static.adguard.com/adguardhome/edge/AdGuardHome_linux_amd64.tar.gz -O AdGuardHome.tar.gz`   

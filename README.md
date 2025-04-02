@@ -28,7 +28,7 @@
             ![image](https://github.com/jslyrd/home_dns_config/blob/main/%E9%9D%99%E6%80%81%E8%B7%AF%E7%94%B1%E9%85%8D%E7%BD%AE.jpg)
     2. SingBox：
         1. 这里用的是shellcrash标准linux设备安装：`export url='https://fastly.jsdelivr.net/gh/juewuy/ShellCrash@master' && wget -q --no-check-certificate -O /tmp/install.sh $url/install.sh  && bash /tmp/install.sh && source /etc/profile &> /dev/null`
-        2. 只需设置纯净模式+mix模式，DNS进阶不用管会被dns.json覆盖，我使用了
+        2. 只需设置纯净模式+mix模式，DNS进阶不用管会被dns.json覆盖
         3. 可以小抄一下作业，下面的配置开启了fakeip、dns缓存，没有使用shellcrash的路由拦截，因为有爱快的静态路由和tun拦截了，非常地纯净。如果有不想走fakeip的域名，将其放在domain_suffix中即可：
             ```
             # 以linux标准安装方式下载shellclash，选项时装在/etc，使用sing-box puernya的内核。设置防火墙为nftables，开启ipv6，纯净模式+mix模式，DNS进阶不用管会被dns.json覆盖。
